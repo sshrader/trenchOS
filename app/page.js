@@ -9,6 +9,8 @@ import RugVision from '../components/RugVision';
 import WalletRoast from '../components/WalletRoast';
 import WhaleRadar from '../components/WhaleRadar';
 import NarrativeScanner from '../components/NarrativeScanner';
+import KolIntel from '../components/KolIntel';
+import AgentWars from '../components/AgentWars';
 import { ComingSoon, Guide, Settings } from '../components/SmallApps';
 
 function read(key) {
@@ -108,6 +110,8 @@ export default function Desktop() {
   function body(app) {
     if (app.id === 'rug') return <RugVision code={code} />;
     if (app.id === 'roast') return <WalletRoast code={code} />;
+    if (app.id === 'kol') return <KolIntel code={code} />;
+    if (app.id === 'agents') return <AgentWars code={code} />;
     if (app.id === 'nar') return <NarrativeScanner code={code} />;
     if (app.id === 'whale') return <WhaleRadar code={code} />;
     if (app.id === 'guide') return <Guide onOpen={openApp} />;

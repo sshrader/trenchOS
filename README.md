@@ -61,3 +61,11 @@ Paste a token mint. The app lists the 20 largest token accounts, separates ordin
 ## Narrative Scanner
 
 Pulls Solana tokens from DexScreener's recent profiles and boosts, looks up their pools, and groups them by shared words in their names (each token goes in at most one theme). For each theme it reports the token count, how many launched in the last 3 hours versus the 3 to 24 hours before, the share with under $5k liquidity, and examples. "Accelerating", "steady" and "fading" describe launch counts only, never price. The sample is small and biased toward tokens whose creators paid for promotion. Only short lowercase theme words and numbers are sent to the model, and a plain template is used when no model is set. Results are cached for 3 minutes. Untested against live data.
+
+## KOL Intelligence
+
+You give it a wallet, how you know the wallet is linked to a public account (confirmed, self-disclosed, probable or unknown), and a list of "token mint, date and time (UTC)" lines for that account's posts. It fetches the wallet's last 500 transactions from Helius and reports, for each post, whether the wallet's first buy came before or after the mention and whether it sold within 24 hours after. The tool never reads X and never decides who owns a wallet. Results are patterns, not proof, and the window is limited to the fetched history. The account handle and any free text are never sent to the model, only counts and the link label.
+
+## Agent Wars
+
+Five rule-based agents (buy and hold, momentum, dip buyer, breakout with trailing stop, and a seeded random baseline) trade a paper $1,000 over the last 1,000 five-minute candles of a token's best pool (DexScreener for the pool, GeckoTerminal for candles, both free). Signals use only past candles and fills happen at the next candle's open. Costs are a 0.5% fee plus slippage estimated from the pool's current liquidity. All decisions are code; the model only writes commentary from the results. Simulated only, never advice. Untested against live data.

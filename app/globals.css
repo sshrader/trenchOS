@@ -165,6 +165,8 @@ h2 { font-size: 20px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; }
 label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 input { flex: 1 1 240px; min-height: 44px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; font-size: 15px; }
+.select, .textarea { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 15px; font-family: inherit; }
+.select { min-height: 44px; }
 .btn { min-height: 44px; background: var(--accent); color: var(--on); border: 0; border-radius: 8px; padding: 0 22px; font-weight: 600; font-size: 15px; cursor: pointer; }
 .btn:disabled { opacity: 0.6; cursor: wait; }
 .btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
