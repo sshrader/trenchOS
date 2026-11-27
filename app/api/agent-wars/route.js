@@ -38,9 +38,18 @@ export async function POST(request) {
     if (liquidityUsd < 1000) {
       return Response.json({ error: 'This pool has under $1,000 of liquidity, too thin to simulate fills sensibly.' }, { status: 422 });
     }
-    const candles = await getCandles(pair.pairAddress, { minutes: 5, limit: 1000 });
+    // Young tokens have too few 5-minute candles, so fall back to 1-minute candles.
+    let minutes = 5;
+    let candles = await getCandles(pair.pairAddress, { minutes, limit: 1000 });
     if (candles.length < MIN_CANDLES) {
-      return Response.json({ error: `Not enough price history yet (${candles.length} five-minute candles; at least ${MIN_CANDLES} needed).` }, { status: 422 });
+      minutes = 1;
+      candles = await getCandles(pair.pairAddress, { minutes, limit: 1000 });
+    }
+    if (candles.length < MIN_CANDLES) {
+      return Response.json(
+        { error: `This token is too new: only ${candles.length} one-minute candles exist (at least ${MIN_CANDLES} needed). Try again once it has traded for an hour or more.` },
+        { status: 422 },
+      );
     }
     const wars = runWars(candles, { liquidityUsd, seed: mint });
     const hours = (candles[candles.length - 1].t - candles[0].t) / 3.6e6;
@@ -50,7 +59,7 @@ export async function POST(request) {
       mint,
       symbol: String(pair.baseToken?.symbol ?? '').slice(0, 14),
       generatedAt: new Date().toISOString(),
-      window: { start: candles[0].t, end: candles[candles.length - 1].t, hours, candles: candles.length, candleMinutes: 5 },
+      window: { start: candles[0].t, end: candles[candles.length - 1].t, hours, candles: candles.length, candleMinutes: minutes },
       assumptions: { startCash: START_CASH, feePct: FEE * 100, liquidityUsd },
       ...wars,
       explanation,
@@ -60,9 +69,10 @@ export async function POST(request) {
         'Agents see only candles up to the current one and fill at the next candle\'s open, so none can peek ahead.',
         `Costs: ${(FEE * 100).toFixed(1)}% fee per trade plus slippage estimated from the pool's current liquidity. Past liquidity may have been different, so real costs could be higher or lower.`,
         'One token over a short window is a tiny sample. A strategy that wins here can lose on the next token. The random agent shows how much luck matters.',
+        'Candles only exist for minutes with trades, so quiet periods are missing and a young or thin token may cover less time than the candle count suggests.',
         'Each agent goes all-in on one position at a time. Real trading has failed transactions, MEV and delays that this does not model.',
       ],
-      sources: ['DexScreener (best pool and liquidity)', 'GeckoTerminal (5-minute price candles)'],
+      sources: ['DexScreener (best pool and liquidity)', `GeckoTerminal (${minutes}-minute price candles)`],
     };
     cache.set(mint, { at: Date.now(), data });
     if (cache.size > 50) cache.delete(cache.keys().next().value);
