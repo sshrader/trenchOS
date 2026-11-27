@@ -30,7 +30,7 @@ export default function Home() {
         body: JSON.stringify({ mint }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Scan failed.');
+      if (!res.ok) throw new Error([data.error || 'Scan failed.', data.detail].filter(Boolean).join(' '));
       setReport(data);
     } catch (err) {
       setError(err.message);

@@ -33,7 +33,7 @@ export async function POST(request) {
   try {
     const [mintInfo, holders, market] = await Promise.all([
       getMintInfo(mint),
-      getTopHolders(mint),
+      getTopHolders(mint).catch((e) => { console.error('holders failed', e); return null; }),
       getMarket(mint).catch(() => null),
     ]);
     if (!mintInfo) {
@@ -54,6 +54,11 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error('rug-scan failed', err);
-    return Response.json({ error: 'Scan failed. A data provider may be unavailable.' }, { status: 502 });
+    // Our own RPC errors never contain the URL or key, so their message is safe to show.
+    const detail = typeof err?.message === 'string' && err.message.startsWith('RPC') ? err.message : undefined;
+    return Response.json(
+      { error: 'Scan failed. A data provider may be unavailable.', detail },
+      { status: 502 },
+    );
   }
 }
