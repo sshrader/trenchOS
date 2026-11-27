@@ -186,6 +186,10 @@ export default function Home() {
                   </div>
                   <p className="explain">{profile.roast}</p>
                   <button type="button" className="btn ghost" onClick={copySummary}>{copied ? 'COPIED' : 'COPY SUMMARY'}</button>
+                  <div className="note">
+                    Sample: {profile.diagnostics.transactionsFetched} transactions fetched, {profile.diagnostics.usableTrades} usable as token buys or sells
+                    {profile.diagnostics.widenedSearch ? ' (widened search used)' : ''}.
+                  </div>
                   <ul className="note caveats">
                     {profile.caveats.map((c) => <li key={c}>{c}</li>)}
                   </ul>
