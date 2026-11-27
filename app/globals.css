@@ -9,6 +9,14 @@
   --label-bg: rgba(0, 0, 0, 0.4); --label-fg: #ffffff;
   --wp: radial-gradient(ellipse at 22% 28%, rgba(76, 194, 255, 0.55), transparent 55%), radial-gradient(ellipse at 78% 72%, rgba(106, 70, 255, 0.5), transparent 55%), linear-gradient(160deg, #0a1a3a, #0b2f6b);
 }
+.os[data-theme='midnight'] {
+  --bg: #13151a; --panel: #1b1e25; --panel2: #232731; --line: #353b4a;
+  --accent: #8ab4ff; --on: #0c1426; --text: #e8eaf0; --muted: #a9b0c0;
+  --ok: #7fdc9f; --warn: #f0c36a; --bad: #ff8f8f;
+  --bar-bg: #171a20; --title-bg: #171a20; --task-bg: rgba(20, 22, 28, 0.82);
+  --label-bg: rgba(0, 0, 0, 0.45); --label-fg: #ffffff;
+  --wp: radial-gradient(ellipse at 20% 25%, rgba(138, 180, 255, 0.18), transparent 55%), radial-gradient(ellipse at 80% 78%, rgba(150, 110, 255, 0.16), transparent 55%), linear-gradient(160deg, #0e1014, #1a1d27);
+}
 .os[data-theme='matrix'] {
   --bg: #05080a; --panel: #0a1210; --panel2: #0d1a15; --line: #1b3a2a;
   --accent: #39ff88; --on: #05080a; --text: #d6f5e3; --muted: #9cc2b1;

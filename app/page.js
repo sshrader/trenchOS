@@ -19,7 +19,7 @@ function write(key, value) {
 export default function Desktop() {
   const [wins, setWins] = useState({});
   const [code, setCode] = useState('');
-  const [theme, setThemeState] = useState('windows');
+  const [theme, setThemeState] = useState('midnight');
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
