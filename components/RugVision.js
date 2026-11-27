@@ -32,21 +32,21 @@ export default function RugVision({ code }) {
         <label htmlFor="mint">Token mint address</label>
         <div className="row">
           <input id="mint" value={mint} onChange={(e) => setMint(e.target.value)} placeholder="Paste a Solana token mint" required />
-          <button className="btn" type="submit" disabled={loading}>{loading ? 'SCANNING...' : 'RUN SCAN'}</button>
+          <button className="btn" type="submit" disabled={loading}>{loading ? 'Scanning…' : 'Run scan'}</button>
         </div>
         {error && <div className="err" role="alert">{error}</div>}
       </form>
       {report && (
         <section className="panel" aria-live="polite">
           <div className="note">Generated {new Date(report.generatedAt).toLocaleString()}</div>
-          <h2 style={{ margin: '4px 0' }}>RISK SIGNALS REQUIRE REVIEW</h2>
+          <h2 style={{ margin: '4px 0' }}>Risk signals require review</h2>
           <div className="note">
             {report.summary.flags} flags · {report.summary.reviews} to review · {report.summary.passes} passed
           </div>
           {report.explanation && <p className="explain">{report.explanation}</p>}
           {report.checks.map((c) => (
             <div className="check" key={c.name}>
-              <div className="head"><span>{c.name}</span><span className={c.status}>{c.status}</span></div>
+              <div className="head"><span>{c.name}</span><span className={`badge ${c.status}`}>{c.status}</span></div>
               <div>{c.evidence}</div>
               <div className="note">Confidence: {c.confidence}</div>
             </div>

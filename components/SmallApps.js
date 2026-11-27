@@ -7,7 +7,7 @@ import { Icon } from './icons';
 export function ComingSoon({ app }) {
   return (
     <div className="panel">
-      <div className="chip" style={{ display: 'inline-block', marginBottom: 12 }}>COMING SOON</div>
+      <div className="chip" style={{ display: 'inline-block', marginBottom: 12 }}>Coming soon</div>
       <h2 style={{ margin: '0 0 8px' }}>{app.name}</h2>
       <p style={{ margin: 0 }}>{app.desc}</p>
       <p className="note" style={{ marginBottom: 0 }}>Not built yet. Nothing in this window is live data.</p>
@@ -18,7 +18,7 @@ export function ComingSoon({ app }) {
 export function Guide({ onOpen }) {
   return (
     <>
-      <p className="lead">Everything in TrencherOS opens from the dock on the left. Here is what each app does.</p>
+      <p className="lead">Open apps from the desktop icons (double-click) or the Start menu. Here is what each app does.</p>
       {APPS.filter((a) => !a.system).map((a) => (
         <div className="guide-row" key={a.id}>
           <div className="guide-icon"><Icon name={a.icon} size={26} /></div>
@@ -26,7 +26,7 @@ export function Guide({ onOpen }) {
             <div className="guide-name">{a.name} {a.soon && <span className="note">(coming soon)</span>}</div>
             <div className="note">{a.desc}</div>
           </div>
-          <button type="button" className="btn ghost small" onClick={() => onOpen(a.id)}>OPEN</button>
+          <button type="button" className="btn ghost small" onClick={() => onOpen(a.id)}>Open</button>
         </div>
       ))}
       <div className="panel" style={{ marginTop: 14 }}>

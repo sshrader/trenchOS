@@ -50,13 +50,13 @@ export default function WalletRoast({ code }) {
         <label htmlFor="wallet">Public wallet address</label>
         <div className="row">
           <input id="wallet" value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="Paste a Solana wallet address" required />
-          <button className="btn" type="submit" disabled={loading}>{loading ? 'PROFILING...' : 'GENERATE DOSSIER'}</button>
+          <button className="btn" type="submit" disabled={loading}>{loading ? 'Profiling…' : 'Generate dossier'}</button>
         </div>
         {error && <div className="err" role="alert">{error}</div>}
       </form>
       {profile && (
         <section className="panel card" aria-live="polite">
-          <div className="note">WALLET DOSSIER GENERATED</div>
+          <div className="note">Wallet dossier</div>
           <h2 className="archetype">{profile.archetype.name}</h2>
           <div className="note">{profile.archetype.blurb}</div>
           <div className="metrics">
@@ -68,7 +68,7 @@ export default function WalletRoast({ code }) {
             <div className="metric"><div className="note">Worst trade</div><b>{profile.metrics.worstPct == null ? 'n/a' : `${f1(profile.metrics.worstPct)}%`}</b></div>
           </div>
           <p className="explain">{profile.roast}</p>
-          <button type="button" className="btn ghost" onClick={copySummary}>{copied ? 'COPIED' : 'COPY SUMMARY'}</button>
+          <button type="button" className="btn ghost" onClick={copySummary}>{copied ? 'Copied' : 'Copy summary'}</button>
           <div className="note" style={{ marginTop: 12 }}>
             Sample: {profile.diagnostics.transactionsFetched} transactions fetched, {profile.diagnostics.usableTrades} usable as token buys or sells
             {profile.diagnostics.widenedSearch ? ' (widened search used)' : ''}.
