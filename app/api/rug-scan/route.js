@@ -41,7 +41,7 @@ export async function POST(request) {
     }
 
     const { checks, summary } = buildChecks({ mintInfo, holders, market });
-    const explanation = await explain({ summary, checks });
+    const { text: explanation, source: explanationSource } = await explain({ summary, checks });
 
     return Response.json({
       mint,
@@ -49,6 +49,7 @@ export async function POST(request) {
       summary,
       checks,
       explanation,
+      explanationSource,
       sources: ['Solana RPC (on-chain accounts)', 'DexScreener (pool and liquidity data)'],
     });
   } catch (err) {

@@ -17,8 +17,12 @@ npm run dev
 | Variable | Purpose |
 | --- | --- |
 | `HELIUS_API_KEY` | Solana RPC data. Falls back to the public RPC (rate limited) if unset. |
-| `ANTHROPIC_API_KEY` | AI explanation. Scans still work without it. |
-| `ANTHROPIC_MODEL` | Optional model override. |
+| `OPENROUTER_API_KEY` | AI explanation via OpenRouter. Optional. |
+| `LLM_MODEL` | Comma-separated model ids, tried in order (for example free `:free` models). |
+| `ANTHROPIC_API_KEY` | Alternative provider, used if no OpenRouter key is set. |
+| `LLM_PROVIDER` | Optional: `openrouter` or `anthropic`. Chosen automatically if unset. |
+
+If no provider is set or every model fails, the app uses a plain-code summary, so scans always work.
 | `ACCESS_CODE` | Optional invite gate for testing. |
 | `RATE_LIMIT_PER_MIN` | Scans per minute per IP (default 10). |
 
