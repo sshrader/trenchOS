@@ -33,7 +33,7 @@ export async function POST(request) {
     if (profile.metrics.tradesAnalyzed < 6) {
       // Some buys and sells are not labeled as swaps. Look at all recent activity instead.
       try {
-        const all = await getWalletTransactions(wallet, { pages: 3 });
+        const all = await getWalletTransactions(wallet, { pages: 5 });
         const wider = analyze(all, wallet);
         if (wider.metrics.tradesAnalyzed > profile.metrics.tradesAnalyzed) {
           txs = all;

@@ -73,7 +73,7 @@ export default function Home() {
     const text = [
       `TRENCHEROS WALLET DOSSIER: ${profile.archetype.name}`,
       profile.roast,
-      `Trades analyzed: ${m.tradesAnalyzed} · Win rate: ${f1(m.winRatePct)}% · Median hold: ${f1(m.medianHoldMin)} min`,
+      `Trades analyzed: ${m.tradesAnalyzed} · Closed tokens: ${m.closedTokens} · Win rate: ${f1(m.winRatePct)}% · Median hold: ${f1(m.medianHoldMin)} min`,
       'Entertainment only. Based on recent swaps.',
     ].join('\n');
     try {
@@ -189,6 +189,9 @@ export default function Home() {
                   <div className="note">
                     Sample: {profile.diagnostics.transactionsFetched} transactions fetched, {profile.diagnostics.usableTrades} usable as token buys or sells
                     {profile.diagnostics.widenedSearch ? ' (widened search used)' : ''}.
+                    {Object.keys(profile.sample.skipped).length > 0 && (
+                      <> Skipped: {Object.entries(profile.sample.skipped).map(([k, v]) => `${k} ${v}`).join(', ')}.</>
+                    )}
                   </div>
                   <ul className="note caveats">
                     {profile.caveats.map((c) => <li key={c}>{c}</li>)}
