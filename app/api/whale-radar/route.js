@@ -39,6 +39,7 @@ export async function POST(request) {
       summary: report.summary,
       holders: report.rows,
       perWalletTxLimit: report.perWalletTxLimit,
+      coverage: report.coverage,
       explanation,
       explanationSource,
       caveats: [

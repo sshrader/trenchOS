@@ -60,6 +60,11 @@ export default function WhaleRadar({ code }) {
             <div className="metric"><div className="note">Adding / reducing / flat</div><b>{s.adding} / {s.reducing} / {s.steady}</b></div>
             <div className="metric"><div className="note">Net change, tracked wallets</div><b>{signed(s.netFlowPctOfSupply)}</b></div>
           </div>
+          {report.coverage?.failed > 0 && (
+            <div className="err" role="status">
+              Partial result: {report.coverage.failed} of {report.coverage.requested} transactions could not be read because the data provider rate-limited the request. Try again in a minute.
+            </div>
+          )}
           {report.explanation && <p className="explain">{report.explanation}</p>}
           {report.holders.map((h, i) => (
             <div className="check" key={h.tokenAccount}>
