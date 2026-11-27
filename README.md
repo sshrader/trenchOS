@@ -53,3 +53,7 @@ The parsing for Helius swaps and for mint creation in `lib/wallet.js` and `lib/d
 ## Interface
 
 The home page is a small desktop environment: a wallpaper with double-click desktop icons, a taskbar with a Start menu, running apps and a clock, and draggable windows with minimize, maximize and close. Apps are registered in `lib/apps.js`. Apps marked `soon` open a placeholder window. Closing a window discards its results; minimizing keeps them.
+
+## Whale Radar
+
+Paste a token mint. The app lists the 20 largest token accounts, separates ordinary wallets from program-controlled accounts (pools, vaults, bonding curves) by checking whether the owner address is on the ed25519 curve, then reads the last 15 transactions of the top 10 wallets and computes each wallet's net change in that token. Code does all of the math; the model only phrases the summary, with a plain template when no model is configured. It describes past activity only. Moving tokens between a person's own wallets looks like a buy or sell, and the time window differs per wallet. Untested against live data until you run it on Railway.

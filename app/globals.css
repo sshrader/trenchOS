@@ -177,6 +177,8 @@ input { flex: 1 1 240px; min-height: 44px; background: var(--bg); color: var(--t
 .PASS { color: var(--ok); }
 .REVIEW { color: var(--warn); }
 .FLAG { color: var(--bad); }
+.tag { font-size: 12px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
 .explain { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 16px 0; }
 .card { border-color: var(--accent); border-width: 2px; border-radius: 14px; }
 .archetype { margin: 6px 0 4px; font-size: 24px; color: var(--accent); }
