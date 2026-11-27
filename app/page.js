@@ -8,6 +8,7 @@ import Window from '../components/Window';
 import RugVision from '../components/RugVision';
 import WalletRoast from '../components/WalletRoast';
 import WhaleRadar from '../components/WhaleRadar';
+import NarrativeScanner from '../components/NarrativeScanner';
 import { ComingSoon, Guide, Settings } from '../components/SmallApps';
 
 function read(key) {
@@ -107,6 +108,7 @@ export default function Desktop() {
   function body(app) {
     if (app.id === 'rug') return <RugVision code={code} />;
     if (app.id === 'roast') return <WalletRoast code={code} />;
+    if (app.id === 'nar') return <NarrativeScanner code={code} />;
     if (app.id === 'whale') return <WhaleRadar code={code} />;
     if (app.id === 'guide') return <Guide onOpen={openApp} />;
     if (app.id === 'settings') return <Settings code={code} setCode={setCode} theme={theme} setTheme={setTheme} />;

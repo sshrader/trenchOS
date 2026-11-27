@@ -62,7 +62,7 @@ export default function WhaleRadar({ code }) {
           </div>
           {report.coverage?.failed > 0 && (
             <div className="err" role="status">
-              Partial result: {report.coverage.failed} of {report.coverage.requested} transactions could not be read because the data provider rate-limited the request. Try again in a minute.
+              Partial result: {report.coverage.failed} of {report.coverage.requested} {report.coverage.unit ?? 'transactions'} could not be read because the data provider rate-limited the request. Try again in a minute.
             </div>
           )}
           {report.explanation && <p className="explain">{report.explanation}</p>}
