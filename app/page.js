@@ -126,6 +126,10 @@ export default function Desktop() {
         className="desktop"
         onPointerDown={(e) => { if (e.target === e.currentTarget) { setSelected(null); setStartOpen(false); } }}
       >
+        <div className="watermark" aria-hidden="true">
+          <Icon name="logo" size={120} />
+          <div className="watermark-name">TrencherOS</div>
+        </div>
         <div className="icons" onPointerDown={(e) => { if (e.target === e.currentTarget) { setSelected(null); setStartOpen(false); } }}>
           {APPS.map((a) => (
             <button
