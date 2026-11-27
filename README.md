@@ -52,4 +52,4 @@ The parsing for Helius swaps and for mint creation in `lib/wallet.js` and `lib/d
 
 ## Interface
 
-The home page is a small desktop environment: a top panel with a clock, a left dock (bottom on phones), and draggable windows with minimize, maximize and close. Apps are registered in `lib/apps.js`. Apps marked `soon` open a placeholder window. Closing a window discards its results; minimizing keeps them.
+The home page is a small desktop environment: a wallpaper with double-click desktop icons, a taskbar with a Start menu, running apps and a clock, and draggable windows with minimize, maximize and close. Apps are registered in `lib/apps.js`. Apps marked `soon` open a placeholder window. Closing a window discards its results; minimizing keeps them.
