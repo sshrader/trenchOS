@@ -49,3 +49,7 @@ If no provider is set or every model fails, the app uses a plain-code summary, s
 ## Untested against live data
 
 The parsing for Helius swaps and for mint creation in `lib/wallet.js` and `lib/deployer.js` was tested with fake data only. If a real wallet or token gives odd results, capture the output and adjust.
+
+## Interface
+
+The home page is a small desktop environment: a top panel with a clock, a left dock (bottom on phones), and draggable windows with minimize, maximize and close. Apps are registered in `lib/apps.js`. Apps marked `soon` open a placeholder window. Closing a window discards its results; minimizing keeps them.

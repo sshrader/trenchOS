@@ -1,207 +1,162 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { APPS } from '../lib/apps';
+import { Icon } from '../components/icons';
+import Window from '../components/Window';
+import RugVision from '../components/RugVision';
+import WalletRoast from '../components/WalletRoast';
+import { ComingSoon, Settings } from '../components/SmallApps';
 
-const MODULES = [
-  { id: 'rug', name: 'RugVision' },
-  { id: 'roast', name: 'Wallet Roast' },
-  { id: 'whale', name: 'Whale Radar', soon: true },
-  { id: 'nar', name: 'Narrative Scanner', soon: true },
-  { id: 'kol', name: 'KOL Intelligence', soon: true },
-  { id: 'agents', name: 'Agent Wars', soon: true },
+const BOOT_LINES = [
+  'TRENCHEROS 0.2 test build',
+  'mounting data layer ........ ok',
+  'loading risk checks ........ ok',
+  'starting evidence store .... ok',
+  'welcome.',
 ];
 
-async function post(url, body, code) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-access-code': code },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error([data.error || 'Request failed.', data.detail].filter(Boolean).join(' '));
-  return data;
-}
-
-const f1 = (n) => (n == null ? 'n/a' : n.toFixed(1));
-
-export default function Home() {
-  const [mod, setMod] = useState('rug');
+export default function Desktop() {
+  const [wins, setWins] = useState({});
   const [code, setCode] = useState('');
+  const [launcher, setLauncher] = useState(false);
+  const [now, setNow] = useState(null);
+  const [booted, setBooted] = useState(false);
+  const z = useRef(10);
+  const opened = useRef(false);
 
-  const [mint, setMint] = useState('');
-  const [rugLoading, setRugLoading] = useState(false);
-  const [rugError, setRugError] = useState('');
-  const [report, setReport] = useState(null);
+  // Clock (client only, so server and browser markup match).
+  useEffect(() => {
+    setNow(new Date());
+    const t = setInterval(() => setNow(new Date()), 15000);
+    return () => clearInterval(t);
+  }, []);
 
-  const [wallet, setWallet] = useState('');
-  const [roastLoading, setRoastLoading] = useState(false);
-  const [roastError, setRoastError] = useState('');
-  const [profile, setProfile] = useState(null);
-  const [copied, setCopied] = useState(false);
+  // Short boot screen, shown once per tab.
+  useEffect(() => {
+    let seen = false;
+    try { seen = sessionStorage.getItem('trenchos-booted') === '1'; } catch {}
+    if (seen) { setBooted(true); return; }
+    const t = setTimeout(() => {
+      setBooted(true);
+      try { sessionStorage.setItem('trenchos-booted', '1'); } catch {}
+    }, 1600);
+    return () => clearTimeout(t);
+  }, []);
 
-  async function scan(e) {
-    e.preventDefault();
-    setRugLoading(true);
-    setRugError('');
-    setReport(null);
-    try {
-      setReport(await post('/api/rug-scan', { mint }, code));
-    } catch (err) {
-      setRugError(err.message);
-    } finally {
-      setRugLoading(false);
-    }
+  function openApp(id) {
+    setLauncher(false);
+    setWins((prev) => {
+      const next = ++z.current;
+      const cur = prev[id];
+      if (cur) return { ...prev, [id]: { ...cur, min: false, z: next } };
+      const n = Object.keys(prev).length;
+      return { ...prev, [id]: { min: false, max: false, x: 96 + n * 32, y: 56 + n * 32, z: next } };
+    });
   }
 
-  async function runRoast(e) {
-    e.preventDefault();
-    setRoastLoading(true);
-    setRoastError('');
-    setProfile(null);
-    setCopied(false);
-    try {
-      setProfile(await post('/api/wallet-roast', { wallet }, code));
-    } catch (err) {
-      setRoastError(err.message);
-    } finally {
-      setRoastLoading(false);
+  // Open RugVision once after boot so the desktop is not empty.
+  useEffect(() => {
+    if (booted && !opened.current) {
+      opened.current = true;
+      openApp('rug');
     }
+  }, [booted]);
+
+  const patch = (id, p) => setWins((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], ...p } } : prev));
+  const focus = (id) => patch(id, { z: ++z.current });
+  const close = (id) => setWins((prev) => { const n = { ...prev }; delete n[id]; return n; });
+
+  const visible = Object.entries(wins).filter(([, w]) => !w.min);
+  const activeId = visible.length ? visible.reduce((a, b) => (b[1].z > a[1].z ? b : a))[0] : null;
+
+  function dockClick(id) {
+    if (wins[id] && !wins[id].min && activeId === id) patch(id, { min: true });
+    else openApp(id);
   }
 
-  async function copySummary() {
-    const m = profile.metrics;
-    const text = [
-      `TRENCHEROS WALLET DOSSIER: ${profile.archetype.name}`,
-      profile.roast,
-      `Trades analyzed: ${m.tradesAnalyzed} · Closed tokens: ${m.closedTokens} · Win rate: ${f1(m.winRatePct)}% · Median hold: ${f1(m.medianHoldMin)} min`,
-      'Entertainment only. Based on recent swaps.',
-    ].join('\n');
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
+  function body(app) {
+    if (app.id === 'rug') return <RugVision code={code} />;
+    if (app.id === 'roast') return <WalletRoast code={code} />;
+    if (app.id === 'settings') return <Settings code={code} setCode={setCode} />;
+    return <ComingSoon app={app} />;
   }
+
+  const time = now ? now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+  const date = now ? now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) : '';
 
   return (
-    <div className="wrap">
-      <header className="top">
-        <div>
-          <div className="brand">TRENCHEROS</div>
-          <div className="sub">Classified intelligence for the trenches.</div>
+    <div className="os">
+      {!booted && (
+        <div className="boot" role="status" aria-live="polite">
+          {BOOT_LINES.map((l) => <div key={l}>&gt; {l}</div>)}
         </div>
-        <span className="chip">TEST BUILD</span>
+      )}
+
+      <header className="panelbar">
+        <button type="button" className="menu-btn" onClick={() => setLauncher((v) => !v)} aria-expanded={launcher}>
+          <Icon name="grid" size={16} /> TRENCHEROS
+        </button>
+        <div className="clock">{date} {time}</div>
+        <div className="tray">
+          <span className="chip">TEST BUILD</span>
+          <button type="button" className="tray-btn" onClick={() => openApp('settings')}>
+            {code ? 'ACCESS SET' : 'NO ACCESS CODE'}
+          </button>
+        </div>
       </header>
 
-      <div className="layout">
-        <nav className="nav" aria-label="Modules">
-          {MODULES.map((m) =>
-            m.soon ? (
-              <div key={m.id} className="item">
-                <span>{m.name}</span>
-                <span className="note">SOON</span>
-              </div>
-            ) : (
-              <button
-                key={m.id}
-                type="button"
-                className={mod === m.id ? 'item active' : 'item'}
-                aria-current={mod === m.id ? 'page' : undefined}
-                onClick={() => setMod(m.id)}
-              >
-                {m.name}
+      <nav className="dock" aria-label="Applications">
+        {APPS.filter((a) => !a.system).map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            className={wins[a.id] ? 'dock-item running' : 'dock-item'}
+            onClick={() => dockClick(a.id)}
+            aria-label={a.soon ? `${a.name} (coming soon)` : a.name}
+            title={a.soon ? `${a.name} (soon)` : a.name}
+          >
+            <Icon name={a.icon} size={24} />
+          </button>
+        ))}
+        <span className="dock-spacer" />
+        <button type="button" className={wins.settings ? 'dock-item running' : 'dock-item'} onClick={() => dockClick('settings')} aria-label="Settings" title="Settings">
+          <Icon name="gear" size={24} />
+        </button>
+      </nav>
+
+      <main className="desktop">
+        {!visible.length && booted && <div className="hint">Pick an app from the dock.</div>}
+        {APPS.filter((a) => wins[a.id]).map((a) => (
+          <Window
+            key={a.id}
+            app={a}
+            state={wins[a.id]}
+            active={activeId === a.id}
+            onFocus={() => focus(a.id)}
+            onMove={(x, y) => patch(a.id, { x, y })}
+            onMin={() => patch(a.id, { min: true })}
+            onMax={() => patch(a.id, { max: !wins[a.id].max })}
+            onClose={() => close(a.id)}
+          >
+            {body(a)}
+          </Window>
+        ))}
+      </main>
+
+      {launcher && (
+        <div className="launcher" onClick={() => setLauncher(false)}>
+          <div className="launcher-grid" onClick={(e) => e.stopPropagation()} role="menu" aria-label="All applications">
+            {APPS.map((a) => (
+              <button key={a.id} type="button" className="launch-item" onClick={() => openApp(a.id)} role="menuitem">
+                <Icon name={a.icon} size={32} />
+                <span>{a.name}</span>
+                {a.soon && <span className="note">SOON</span>}
               </button>
-            ),
-          )}
-        </nav>
-
-        <main className="main">
-          <div className="panel">
-            <label htmlFor="code">Access code (if required)</label>
-            <input id="code" type="password" value={code} onChange={(e) => setCode(e.target.value)} />
+            ))}
           </div>
-
-          {mod === 'rug' && (
-            <>
-              <h1>RugVision</h1>
-              <p className="lead">
-                Paste a token mint address. You get a checklist with evidence, not a single rug score. No scan can guarantee safety.
-              </p>
-              <form className="panel" onSubmit={scan}>
-                <label htmlFor="mint">Token mint address</label>
-                <div className="row">
-                  <input id="mint" value={mint} onChange={(e) => setMint(e.target.value)} placeholder="Paste a Solana token mint" required />
-                  <button className="btn" type="submit" disabled={rugLoading}>{rugLoading ? 'SCANNING...' : 'RUN SCAN'}</button>
-                </div>
-                {rugError && <div className="err" role="alert">{rugError}</div>}
-              </form>
-              {report && (
-                <section className="panel" aria-live="polite">
-                  <div className="note">Generated {new Date(report.generatedAt).toLocaleString()}</div>
-                  <h2 style={{ margin: '4px 0' }}>RISK SIGNALS REQUIRE REVIEW</h2>
-                  <div className="note">
-                    {report.summary.flags} flags · {report.summary.reviews} to review · {report.summary.passes} passed
-                  </div>
-                  {report.explanation && <p className="explain">{report.explanation}</p>}
-                  {report.checks.map((c) => (
-                    <div className="check" key={c.name}>
-                      <div className="head"><span>{c.name}</span><span className={c.status}>{c.status}</span></div>
-                      <div>{c.evidence}</div>
-                      <div className="note">Confidence: {c.confidence}</div>
-                    </div>
-                  ))}
-                  <div className="note">Sources: {report.sources.join(' · ')}. A token can be risky without being a scam.</div>
-                </section>
-              )}
-            </>
-          )}
-
-          {mod === 'roast' && (
-            <>
-              <h1>Wallet Roast</h1>
-              <p className="lead">
-                A funny, evidence-based profile of a public wallet's trading habits. It roasts the behavior, never the person.
-              </p>
-              <form className="panel" onSubmit={runRoast}>
-                <label htmlFor="wallet">Public wallet address</label>
-                <div className="row">
-                  <input id="wallet" value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="Paste a Solana wallet address" required />
-                  <button className="btn" type="submit" disabled={roastLoading}>{roastLoading ? 'PROFILING...' : 'GENERATE DOSSIER'}</button>
-                </div>
-                {roastError && <div className="err" role="alert">{roastError}</div>}
-              </form>
-              {profile && (
-                <section className="panel card" aria-live="polite">
-                  <div className="note">WALLET DOSSIER GENERATED</div>
-                  <h2 className="archetype">{profile.archetype.name}</h2>
-                  <div className="note">{profile.archetype.blurb}</div>
-                  <div className="metrics">
-                    <div className="metric"><div className="note">Trades analyzed</div><b>{profile.metrics.tradesAnalyzed}</b></div>
-                    <div className="metric"><div className="note">Closed tokens</div><b>{profile.metrics.closedTokens}</b></div>
-                    <div className="metric"><div className="note">Win rate</div><b>{f1(profile.metrics.winRatePct)}%</b></div>
-                    <div className="metric"><div className="note">Median hold</div><b>{f1(profile.metrics.medianHoldMin)} min</b></div>
-                    <div className="metric"><div className="note">Best trade</div><b>{profile.metrics.bestPct == null ? 'n/a' : `${f1(profile.metrics.bestPct)}%`}</b></div>
-                    <div className="metric"><div className="note">Worst trade</div><b>{profile.metrics.worstPct == null ? 'n/a' : `${f1(profile.metrics.worstPct)}%`}</b></div>
-                  </div>
-                  <p className="explain">{profile.roast}</p>
-                  <button type="button" className="btn ghost" onClick={copySummary}>{copied ? 'COPIED' : 'COPY SUMMARY'}</button>
-                  <div className="note">
-                    Sample: {profile.diagnostics.transactionsFetched} transactions fetched, {profile.diagnostics.usableTrades} usable as token buys or sells
-                    {profile.diagnostics.widenedSearch ? ' (widened search used)' : ''}.
-                    {Object.keys(profile.sample.skipped).length > 0 && (
-                      <> Skipped: {Object.entries(profile.sample.skipped).map(([k, v]) => `${k} ${v}`).join(', ')}.</>
-                    )}
-                  </div>
-                  <ul className="note caveats">
-                    {profile.caveats.map((c) => <li key={c}>{c}</li>)}
-                  </ul>
-                </section>
-              )}
-            </>
-          )}
-        </main>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
