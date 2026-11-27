@@ -2,31 +2,47 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { APPS } from '../lib/apps';
+import { THEMES } from '../lib/themes';
 import { Icon } from '../components/icons';
 import Window from '../components/Window';
 import RugVision from '../components/RugVision';
 import WalletRoast from '../components/WalletRoast';
-import { ComingSoon, Settings } from '../components/SmallApps';
+import { ComingSoon, Guide, Settings } from '../components/SmallApps';
 
 const BOOT_LINES = [
-  'TRENCHEROS 0.2 test build',
+  'TRENCHEROS 0.3 test build',
   'mounting data layer ........ ok',
   'loading risk checks ........ ok',
   'starting evidence store .... ok',
   'welcome.',
 ];
 
+function read(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function write(key, value) {
+  try { localStorage.setItem(key, value); } catch {}
+}
+
 export default function Desktop() {
   const [wins, setWins] = useState({});
   const [code, setCode] = useState('');
+  const [theme, setThemeState] = useState('matrix');
   const [launcher, setLauncher] = useState(false);
   const [now, setNow] = useState(null);
   const [booted, setBooted] = useState(false);
   const z = useRef(10);
   const opened = useRef(false);
 
-  // Clock (client only, so server and browser markup match).
+  const setTheme = (id) => {
+    setThemeState(id);
+    write('trenchos-theme', id);
+  };
+
+  // Saved theme, and a clock (client only, so server and browser markup match).
   useEffect(() => {
+    const saved = read('trenchos-theme');
+    if (saved && THEMES.some((t) => t.id === saved)) setThemeState(saved);
     setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 15000);
     return () => clearInterval(t);
@@ -51,14 +67,18 @@ export default function Desktop() {
       const cur = prev[id];
       if (cur) return { ...prev, [id]: { ...cur, min: false, z: next } };
       const n = Object.keys(prev).length;
-      return { ...prev, [id]: { min: false, max: false, x: 96 + n * 32, y: 56 + n * 32, z: next } };
+      return { ...prev, [id]: { min: false, max: false, x: 112 + n * 32, y: 56 + n * 32, z: next } };
     });
   }
 
-  // Open RugVision once after boot so the desktop is not empty.
+  // After boot: open RugVision, and the Guide the first time this browser visits.
   useEffect(() => {
     if (booted && !opened.current) {
       opened.current = true;
+      if (!read('trenchos-welcomed')) {
+        write('trenchos-welcomed', '1');
+        openApp('guide');
+      }
       openApp('rug');
     }
   }, [booted]);
@@ -78,15 +98,32 @@ export default function Desktop() {
   function body(app) {
     if (app.id === 'rug') return <RugVision code={code} />;
     if (app.id === 'roast') return <WalletRoast code={code} />;
-    if (app.id === 'settings') return <Settings code={code} setCode={setCode} />;
+    if (app.id === 'guide') return <Guide onOpen={openApp} />;
+    if (app.id === 'settings') return <Settings code={code} setCode={setCode} theme={theme} setTheme={setTheme} />;
     return <ComingSoon app={app} />;
+  }
+
+  function dockButton(app) {
+    return (
+      <button
+        key={app.id}
+        type="button"
+        className={wins[app.id] ? 'dock-item running' : 'dock-item'}
+        onClick={() => dockClick(app.id)}
+        aria-label={app.soon ? `${app.name} (coming soon)` : app.name}
+        title={app.soon ? `${app.name} (coming soon)` : app.name}
+      >
+        <Icon name={app.icon} size={24} />
+        <span className="dock-label">{app.short}</span>
+      </button>
+    );
   }
 
   const time = now ? now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
   const date = now ? now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) : '';
 
   return (
-    <div className="os">
+    <div className="os" data-theme={theme}>
       {!booted && (
         <div className="boot" role="status" aria-live="polite">
           {BOOT_LINES.map((l) => <div key={l}>&gt; {l}</div>)}
@@ -107,22 +144,9 @@ export default function Desktop() {
       </header>
 
       <nav className="dock" aria-label="Applications">
-        {APPS.filter((a) => !a.system).map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            className={wins[a.id] ? 'dock-item running' : 'dock-item'}
-            onClick={() => dockClick(a.id)}
-            aria-label={a.soon ? `${a.name} (coming soon)` : a.name}
-            title={a.soon ? `${a.name} (soon)` : a.name}
-          >
-            <Icon name={a.icon} size={24} />
-          </button>
-        ))}
+        {APPS.filter((a) => !a.system).map(dockButton)}
         <span className="dock-spacer" />
-        <button type="button" className={wins.settings ? 'dock-item running' : 'dock-item'} onClick={() => dockClick('settings')} aria-label="Settings" title="Settings">
-          <Icon name="gear" size={24} />
-        </button>
+        {APPS.filter((a) => a.system).map(dockButton)}
       </nav>
 
       <main className="desktop">
