@@ -30,7 +30,6 @@ export default function Desktop() {
   const [now, setNow] = useState(null);
   const [booted, setBooted] = useState(false);
   const z = useRef(10);
-  const opened = useRef(false);
 
   const setTheme = (id) => {
     setThemeState(id);
@@ -69,18 +68,6 @@ export default function Desktop() {
       return { ...prev, [id]: { min: false, max: false, x: 150 + n * 30, y: 24 + n * 30, z: next } };
     });
   }
-
-  // After boot: open RugVision, and the Guide the first time this browser visits.
-  useEffect(() => {
-    if (booted && !opened.current) {
-      opened.current = true;
-      if (!read('trenchos-welcomed')) {
-        write('trenchos-welcomed', '1');
-        openApp('guide');
-      }
-      openApp('rug');
-    }
-  }, [booted]);
 
   const patch = (id, p) => setWins((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], ...p } } : prev));
   const focus = (id) => patch(id, { z: ++z.current });
