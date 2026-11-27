@@ -46,3 +46,11 @@ input { flex: 1 1 280px; min-height: 44px; background: var(--bg); color: var(--t
 .REVIEW { color: var(--amber); font-weight: 700; }
 .FLAG { color: var(--red); font-weight: 700; }
 .explain { border-left: 3px solid var(--green); padding: 4px 0 4px 14px; margin: 16px 0; }
+button.item { font-size: 14px; cursor: pointer; text-align: left; }
+.card { border-color: var(--green); border-width: 2px; border-radius: 16px; }
+.archetype { margin: 6px 0 4px; font-size: 28px; color: var(--green); }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+.metric { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.metric b { font-size: 18px; }
+.btn.ghost { background: transparent; color: var(--green); border: 2px solid var(--green); }
+.caveats { margin: 16px 0 0; padding-left: 18px; }

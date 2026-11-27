@@ -39,4 +39,13 @@ If no provider is set or every model fails, the app uses a plain-code summary, s
 - Never collect private keys or seed phrases. Read-only public addresses are enough.
 - The rate limiter is in memory (one instance). Use Redis or Postgres if you scale out.
 - Thresholds for each check are in `lib/checks.js`, shown to users in the evidence text.
-- Not in this version: liquidity lock/burn detection, deployer history, bundled-buy detection.
+- Not in this version: liquidity lock/burn detection, bundled-buy detection.
+
+## Modules
+
+- **RugVision** (`/api/rug-scan`): mint and freeze authority, holder concentration, liquidity depth, pair age, deployer history. The deployer is the fee payer of the token's oldest transaction; "other launches" are mints initialized in that wallet's last 40 transactions. It is a heuristic and does not link creators who use several wallets.
+- **Wallet Roast** (`/api/wallet-roast`, needs `HELIUS_API_KEY`): reads recent parsed swaps from Helius, computes win rate, hold time and other metrics in code, picks an archetype by fixed rules, then writes a roast (LLM or template). PnL is approximate and limited to the sampled window. It describes behavior only and never identifies a person.
+
+## Untested against live data
+
+The parsing for Helius swaps and for mint creation in `lib/wallet.js` and `lib/deployer.js` was tested with fake data only. If a real wallet or token gives odd results, capture the output and adjust.

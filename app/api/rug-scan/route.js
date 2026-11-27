@@ -1,23 +1,16 @@
 import { getMintInfo, getTopHolders, getMarket } from '../../../lib/solana.js';
+import { deployerReport } from '../../../lib/deployer.js';
 import { buildChecks } from '../../../lib/checks.js';
 import { explain } from '../../../lib/explain.js';
-import { allow } from '../../../lib/ratelimit.js';
+import { guard } from '../../../lib/guard.js';
 
 export const dynamic = 'force-dynamic';
 
 const BASE58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
 export async function POST(request) {
-  const requiredCode = process.env.ACCESS_CODE;
-  if (requiredCode && request.headers.get('x-access-code') !== requiredCode) {
-    return Response.json({ error: 'Access code required.' }, { status: 401 });
-  }
-
-  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim();
-  const limit = Number(process.env.RATE_LIMIT_PER_MIN ?? 10);
-  if (!allow(ip, limit)) {
-    return Response.json({ error: 'Too many scans. Try again in a minute.' }, { status: 429 });
-  }
+  const blocked = guard(request);
+  if (blocked) return blocked;
 
   let body;
   try {
@@ -31,16 +24,17 @@ export async function POST(request) {
   }
 
   try {
-    const [mintInfo, holders, market] = await Promise.all([
+    const [mintInfo, holders, market, deployer] = await Promise.all([
       getMintInfo(mint),
       getTopHolders(mint).catch((e) => { console.error('holders failed', e); return null; }),
       getMarket(mint).catch(() => null),
+      deployerReport(mint).catch((e) => { console.error('deployer failed', e); return null; }),
     ]);
     if (!mintInfo) {
       return Response.json({ error: 'That address is not a token mint.' }, { status: 404 });
     }
 
-    const { checks, summary } = buildChecks({ mintInfo, holders, market });
+    const { checks, summary } = buildChecks({ mintInfo, holders, market, deployer });
     const { text: explanation, source: explanationSource } = await explain({ summary, checks });
 
     return Response.json({
@@ -50,7 +44,7 @@ export async function POST(request) {
       checks,
       explanation,
       explanationSource,
-      sources: ['Solana RPC (on-chain accounts)', 'DexScreener (pool and liquidity data)'],
+      sources: ['Solana RPC (on-chain accounts and transactions)', 'DexScreener (pool and liquidity data)'],
     });
   } catch (err) {
     console.error('rug-scan failed', err);
